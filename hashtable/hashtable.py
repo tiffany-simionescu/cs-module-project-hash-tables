@@ -37,7 +37,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        pass
+        return len(self.bucket)
 
 
     def get_load_factor(self):
@@ -46,8 +46,8 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        pass
+        # load factor = num of items / num of total slots
+        return self.count / self.get_num_slots()
 
 
     def fnv1(self, key):
@@ -98,8 +98,35 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # Day 1
+        # index = self.hash_index(key)
+        # self.bucket[index] = value
+
+        # Day 2        
         index = self.hash_index(key)
-        self.bucket[index] = value
+        new_node = HashTableEntry(key, value)
+        cur_node = self.bucket[index]
+
+        if self.bucket[index] == None:
+            self.bucket[index] = new_node
+            self.count += 1
+
+        elif self.bucket[index] is not None and self.bucket[index].key == key:
+            self.bucket[index].value = value
+
+        elif self.bucket[index] is not None:
+            while cur_node is not None:
+                if cur_node.next is None:
+                    cur_node.next = new_node
+                    self.count += 1
+                    return cur_node
+
+                elif cur_node.next is not None and cur_node.next.key == key:
+                    cur_node.next.value = value
+                    return cur_node.next
+
+                else:
+                    cur_node = cur_node.next
 
 
     def delete(self, key):
@@ -111,8 +138,41 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # Day 1 
+        # index = self.hash_index(key)
+        # self.bucket[index] = None
+
+        # Day 2
         index = self.hash_index(key)
-        self.bucket[index] = None
+        is_node = True 
+        cur_node = self.bucket[index]
+        prev_node = None
+        
+        while cur_node is not None:
+            if cur_node.key == key:
+                if is_node:
+                    if cur_node.next == None:
+                        self.bucket[index] = None
+                        cur_node = None
+                    else: 
+                        self.bucket[index] = cur_node.next
+                        cur_node = None
+                else: 
+                    if cur_node.next == None:
+                        prev_node.next = None
+                        cur_node = None
+                    else: 
+                        prev_node.next = cur_node.next
+                        cur_node = None
+                return
+            
+            is_node = False
+
+            if cur_node.next == None:
+                return 
+
+            prev_node = cur_node
+            cur_node = cur_node.next 
 
 
     def get(self, key):
@@ -124,8 +184,24 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # Day 1
+        # index = self.hash_index(key)
+        # return self.bucket[index]
+
+        # Day 2
         index = self.hash_index(key)
-        return self.bucket[index]
+        cur_node = self.bucket[index]
+
+        if cur_node is not None and cur_node.key == key:
+            return cur_node.value
+        else:
+            while cur_node is not None:
+                if cur_node.key == key:
+                    return cur_node.value
+
+                cur_node = cur_node.next
+
+        return None
 
 
     def resize(self, new_capacity):
@@ -136,7 +212,24 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        pass
+        new_bucket = [None] * new_capacity
+        cur_bucket = self.bucket
+        self.bucket = new_bucket
+        self.count = 0
+        self.capacity = new_capacity
+        index = 0
+
+        while index < len(cur_bucket):
+            cur_node = cur_bucket[index]
+
+            if cur_node is not None:
+                next_node = cur_node.next
+                cur_node.next = None
+                self.put(cur_node.key, cur_node.value)
+                cur_bucket[index] = next_node
+                
+            elif cur_node is None:
+                index += 1
 
 
 if __name__ == "__main__":
