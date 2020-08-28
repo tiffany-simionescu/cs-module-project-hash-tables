@@ -1,6 +1,22 @@
 def word_count(s):
     # Your code here
+    cache = {}
+    skip_characters = '" : ; , . - + = / \ | [ ] { } ( ) * ^ &'.split(" ")
+    lowercase_s = s.lower()
+    
+    # replace skip characters with empty space
+    for char in skip_characters:
+        lowercase_s = lowercase_s.replace(char, "")
 
+    for word in lowercase_s.split():
+        if word == "":
+            continue
+        if word not in cache:
+            cache[word] = 1
+        else:
+            cache[word] += 1
+
+    return cache
 
 
 if __name__ == "__main__":
